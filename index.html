@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Fiesta de Preguntas!</title>
+    <!-- Google Font: Fredoka para un look divertido -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN para un estilo rápido y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden; /* Oculta el scroll si las partículas salen de la vista */
+        }
+        /* Definir colores personalizados para un look neón */
+        .color-primary { color: #f9f871; }
+        .color-secondary { color: #b7a9ff; }
+        .bg-color-primary { background-color: #f9f871; }
+        .bg-color-secondary { background-color: #b7a9ff; }
+        .text-neon-pink { color: #ff69b4; }
+        .border-neon-pink { border-color: #ff69b4; }
+        .text-neon-blue { color: #4dc2ff; }
+        .border-neon-blue { border-color: #4dc2ff; }
+        .text-neon-green { color: #51ff00; }
+        .border-neon-green { border-color: #51ff00; }
+        .text-neon-yellow { color: #ffea00; }
+        .border-neon-yellow { border-color: #ffea00; }
+        .text-neon-purple { color: #9d00ff; }
+        .border-neon-purple { border-color: #9d00ff; }
+        /* Animaciones personalizadas */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+        }
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-short {
+            animation: bounce-short 1s ease-in-out infinite;
+        }
+
+        /* Estilos y animación para las partículas */
+        .particle-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1; /* Mover el contenedor detrás del contenido principal */
+        }
+
+        .particle {
+            position: absolute;
+            bottom: -20px;
+            border-radius: 50%;
+            background-color: white; /* Color por defecto */
+            animation: floatUp 8s ease-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+        
+        /* Nuevo estilo para el borde animado */
+        .animated-border-wrapper {
+            position: relative;
+            padding: 4px; /* Espacio para el borde animado */
+            border-radius: 2rem; /* Coincide con el redondeado de los bordes del contenido */
+            background: linear-gradient(45deg, #ff69b4, #4dc2ff, #51ff00, #ffea00, #9d00ff);
+            background-size: 300% 300%;
+            animation: spin-border 8s linear infinite;
+        }
+
+        .animated-border-inner {
+            background-color: #111827; /* bg-gray-900 en Tailwind */
+            border-radius: 2rem; /* Coincide con el redondeado de los bordes del wrapper */
+        }
+        
+        @keyframes spin-border {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Animación de entrada para el título */
+        @keyframes bounce-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .title-bounce {
+            animation: bounce-in 1s ease-out forwards;
+        }
+
+        /* Animación para la pregunta cuando aparece */
+        @keyframes pop-in {
+            0% { transform: scale(0.8) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: pop-in 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen flex items-center justify-center p-4">
+
+    <!-- Container for the floating particles -->
+    <div class="particle-container"></div>
+
+    <!-- Main Container with Animated Border -->
+    <div class="w-full max-w-2xl rounded-3xl shadow-lg animate-pulse-slow z-10 animated-border-wrapper">
+        <div class="p-6 sm:p-10 flex flex-col items-center justify-center text-center animated-border-inner">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500 mb-4 sm:mb-6 leading-tight title-bounce">
+                ¡Fiesta de Preguntas!
+            </h1>
+
+            <p class="text-lg sm:text-xl text-color-primary mb-8 animate-bounce-short">
+                Presiona el botón para descubrir tu pregunta
+            </p>
+
+            <!-- Question Display Box -->
+            <div id="question-box" class="w-full min-h-[150px] sm:min-h-[200px] bg-gray-800 rounded-2xl p-6 sm:p-8 flex items-center justify-center mb-8 border-4 border-neon-blue transition-all duration-300 shadow-xl hover:shadow-2xl hover:border-neon-green">
+                <p id="question-text" class="text-2xl sm:text-3xl text-white font-bold italic">
+                    La pregunta aparecerá aquí
+                </p>
+            </div>
+
+            <!-- Button to get a new question -->
+            <button id="next-question-btn" class="bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 transition-all duration-300 text-gray-900 font-extrabold text-xl sm:text-2xl py-4 px-8 rounded-full shadow-lg transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50">
+                Nueva Pregunta ✨
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Array of questions in Spanish
+        const questions = [
+            // Fun and icebreaker questions
+            "Si fueras un animal, ¿cuál serías y por qué?",
+            "¿Cuál es la cosa más extraña que tienes en tu cartera o en tus bolsillos ahora mismo?",
+            "Si pudieras viajar en el tiempo, ¿a qué época irías y a qué harías?",
+            "¿Qué personaje de película o serie de TV serías en la vida real?",
+            "¿Cuál es el emoji que más usas?",
+            "¿Qué superpoder elegirías y por qué?",
+            "Si tu vida fuera una película, ¿cómo se llamaría?",
+            "¿Qué talento oculto tienes?",
+
+            // Curious and thought-provoking questions
+            "¿Qué crees que es lo más grande que se puede lograr en la vida?",
+            "¿Cuál es un libro o una película que ha cambiado tu forma de pensar?",
+            "¿Qué consejo le darías a tu yo de hace 10 años?",
+            "Si solo pudieras comer una comida por el resto de tu vida, ¿cuál sería?",
+            "¿Qué harías si ganaras la lotería hoy?",
+            "¿Cuál es tu recuerdo más feliz de la infancia?",
+            "¿Qué es algo que todo el mundo debería experimentar al menos una vez en la vida?",
+            "¿Qué es lo más valioso que has aprendido de un fracaso?",
+            
+            // Challenge and 'Truth or Dare' style questions (original)
+            "Canta tu canción favorita a capella durante 10 segundos.",
+            "Imita a una persona famosa. El resto debe adivinar quién es.",
+            "¿Cuál es la cosa más vergonzosa que te ha pasado en una cita?",
+            "Describe a tu 'crush' ideal sin decir nombres ni profesiones.",
+            "¿Alguna vez has mentido para salir de un problema? ¿Qué pasó?",
+            "Cuenta una anécdota que nadie aquí conozca sobre ti.",
+            "Nombra un hábito extraño que tengas.",
+            "Haz una pose de superhéroe y grita tu grito de batalla.",
+
+            // New "Verdad" (Truth) questions from the user
+            "¿Cuál es la mentira más loca que has dicho para salirte con la tuya?",
+            "¿Quién fue tu último crush secreto? 😏",
+            "¿Cuál es tu peor cita de la vida?",
+            "¿Has espiado las redes sociales de tu ex?",
+            "¿Cuál es la excusa más ridícula que has usado para no ir a la escuela/trabajo?",
+            "¿Has enviado un mensaje vergonzoso por accidente?",
+            "¿Quién de aquí sería el peor compañero de cuarto y por qué?",
+            "¿Has tenido un sueño raro con alguien de este grupo?",
+            "¿Qué es lo más vergonzoso que te ha pasado en una fiesta? 🎉",
+            "¿Cuál fue tu primer crush famoso?",
+            
+            // New "Reto" (Dare) questions from the user
+            "Dale un piropo exagerado a la persona a tu izquierda.",
+            "Baila como si estuvieras en un videoclip por 30 segundos. 💃",
+            "Haz tu mejor cara sexy y mantenla 10 segundos.",
+            "Imita a alguien de este grupo hasta que adivinen quién es.",
+            "Lee el último mensaje que enviaste en tu celular (si no es muy personal).",
+            "Canta una canción dramáticamente como si estuvieras en una telenovela. 🎤",
+            "Haz 10 sentadillas mientras miras a alguien intensamente.",
+            "Deja que alguien del grupo te haga una pregunta extra y respóndela sin excusas.",
+            "Dale un abrazo largo (mínimo 15 segundos) a la persona que el grupo elija.",
+            "Haz una confesión inesperada sobre tu vida amorosa. ❤️"
+        ];
+
+        // Get references to the HTML elements
+        const questionTextElement = document.getElementById('question-text');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const questionBox = document.getElementById('question-box');
+        const particleContainer = document.querySelector('.particle-container');
+
+        // Event listener for the button click
+        nextQuestionBtn.addEventListener('click', () => {
+            // Get a random question index
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            const randomQuestion = questions[randomIndex];
+
+            // Change the border color of the question box to make it dynamic
+            const colors = ['border-neon-pink', 'border-neon-blue', 'border-neon-green', 'border-neon-yellow', 'border-neon-purple'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Remove previous border colors
+            colors.forEach(c => questionBox.classList.remove(c));
+            
+            // Add the new random border color
+            questionBox.classList.add(randomColor);
+
+            // Add the pop-in animation class to the question text
+            questionTextElement.classList.remove('animate-pop-in'); // Remove it first to re-trigger
+            void questionTextElement.offsetWidth; // Trigger reflow to restart animation
+            questionTextElement.classList.add('animate-pop-in');
+
+            // Update the question text
+            questionTextElement.textContent = randomQuestion;
+            
+            // Add a subtle animation class for a visual effect
+            questionBox.classList.add('animate-pulse');
+            setTimeout(() => {
+                questionBox.classList.remove('animate-pulse');
+            }, 500); // Remove the class after 500ms
+        });
+
+        // --- Particle Animation Logic ---
+
+        // Array of colors for the particles
+        const particleColors = ['#ff69b4', '#4dc2ff', '#51ff00', '#ffea00', '#9d00ff'];
+
+        /**
+         * Creates a new particle element and adds it to the container.
+         */
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            // Randomize particle size
+            const size = Math.random() * 8 + 4; // Size between 4px and 12px
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            // Randomize starting position
+            const left = Math.random() * 100; // Position between 0% and 100% of the screen width
+            particle.style.left = `${left}vw`;
+
+            // Randomize animation duration and delay for a more dynamic effect
+            const duration = Math.random() * 5 + 5; // Duration between 5s and 10s
+            particle.style.animationDuration = `${duration}s`;
+            
+            const delay = Math.random() * 2; // Delay up to 2s
+            particle.style.animationDelay = `${delay}s`;
+
+            // Randomize particle color
+            const color = particleColors[Math.floor(Math.random() * particleColors.length)];
+            particle.style.backgroundColor = color;
+
+            // Add the particle to the container
+            particleContainer.appendChild(particle);
+
+            // Remove the particle from the DOM after its animation completes to prevent performance issues
+            setTimeout(() => {
+                particle.remove();
+            }, duration * 1000);
+        }
+
+        // Generate new particles at regular intervals
+        setInterval(createParticle, 300); // Create a new particle every 300ms
+    </script>
+
+</body>
+</html>
